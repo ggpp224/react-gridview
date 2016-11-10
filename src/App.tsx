@@ -105,13 +105,7 @@ function createSheet(data){
         rowHeader: new RowHeader({
             rowCount: rowData.num
         })
-    })
-       /*.mergeRange(CellRange.create(6, 3, 6, 6))
-        .mergeRange(CellRange.create(2, 2, 4, 2))
-        .mergeRange(CellRange.create(2, 3, 5, 3))
-        .mergeRange(CellRange.create(1,4, 4, 6));*/
-
-    .mergeRange(CellRange.create(2, 2, 3, 2))
+    }).mergeRange(CellRange.create(2, 2, 3, 2))
       .mergeRange(CellRange.create(2, 3, 4, 3))
       .mergeRange(CellRange.create(1, 4, 3, 6))
       .mergeRange(CellRange.create(5, 3, 5, 6));
