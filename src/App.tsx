@@ -1,5 +1,6 @@
 import * as React from "react";
 import {observer} from "mobx-react/index";
+import {Record, Map, OrderedMap}from "immutable";
 import injectTapEventPlugin = require("react-tap-event-plugin");
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import getMuiTheme from "material-ui/styles/getMuiTheme";
@@ -20,8 +21,11 @@ injectTapEventPlugin();
 let fieldData = {
 
     columns: {
-        num: 4,
+        num: 5,
         fields: [
+            {
+                width: 50
+            },
             {
                 width: 100
             },
@@ -29,15 +33,15 @@ let fieldData = {
                 width: 200
             },
             {
-                width: 300
+                width: 80
             },
             {
-                width: 300
+                width: 150
             }
         ]
     },
     rows: {
-        num: 4,
+        num: 6,
         lines: [
             {
                 height: 50,
@@ -46,10 +50,16 @@ let fieldData = {
                 height: 100,
             },
             {
+                height: 50,
+            },
+            {
                 height: 200,
             },
             {
-                height: 150,
+                height: 50,
+            },
+            {
+                height: 100,
             }
         ]
     }
@@ -80,8 +90,16 @@ function createSheet(data){
         rowHeader: new RowHeader({
             rowCount: rowData.num
         })
-    }).mergeRange(CellRange.create(2, 2, 3, 2))
-      .mergeRange(CellRange.create(2, 3, 4, 3))  ;
+    })
+       /*.mergeRange(CellRange.create(6, 3, 6, 6))
+        .mergeRange(CellRange.create(2, 2, 4, 2))
+        .mergeRange(CellRange.create(2, 3, 5, 3))
+        .mergeRange(CellRange.create(1,4, 4, 6));*/
+
+    .mergeRange(CellRange.create(2, 2, 3, 2))
+      .mergeRange(CellRange.create(2, 3, 4, 3))
+      .mergeRange(CellRange.create(1, 4, 3, 6))
+      .mergeRange(CellRange.create(5, 3, 5, 6));
 
     let colItems = sheet.columnHeader.items;
     // 更新列宽
@@ -157,22 +175,31 @@ class App extends React.Component<{}, {}> {
         let insertNo = 3;
         const newColumnHeader = sheet.columnHeader.insertItem(insertNo,new ColumnHeaderItem());
         let newSheet = sheet.setColumnHeader(newColumnHeader);
-        const mergeRange = this.updateMergeRange(this.listMergeRange(newSheet), insertNo);
+
+        console.log(this.listMergeRange(newSheet));
+        const mergeRange = this.updateColumnMergeRange(this.listMergeRange(newSheet), insertNo);
+        console.log(mergeRange);
+        newSheet = newSheet.setTable(Map());
         for(let key in mergeRange){
             newSheet = newSheet.mergeRange(mergeRange[key]);
         }
+        console.log(newSheet);
+
         this.onChangeSheet(sheet,newSheet);
     }
 
     onInsertRowClick(e){
         let sheet = this.refs.grid.state.sheet;
-        let insertNo = 3;
+        let insertNo = 5;
         const newRowHeader = sheet.rowHeader.insertItem(insertNo,new RowHeaderItem());
         let newSheet = sheet.setRowHeader(newRowHeader);
-        /*const mergeRange = this.updateMergeRange(this.listMergeRange(newSheet), insertNo);
+        console.log(this.listMergeRange(newSheet));
+        const mergeRange = this.updateRowMergeRange(this.listMergeRange(newSheet), insertNo);
+        console.log(mergeRange);
+        newSheet = newSheet.setTable(Map());
         for(let key in mergeRange){
             newSheet = newSheet.mergeRange(mergeRange[key]);
-        }*/
+        }
         this.onChangeSheet(sheet,newSheet);
     }
 
@@ -185,8 +212,8 @@ class App extends React.Component<{}, {}> {
         const table = sheet.table;
         let cellsCode = {};
         table.forEach((item,key) => {
-            console.log(key);
-            console.log(item.get('mergeRange'));
+            //console.log(key);
+            //console.log(item.get('mergeRange'));
             const range = item.get('mergeRange');
             let minColumnNo = range.minColumnNo,
                 minRowNo = range.minRowNo,
@@ -194,7 +221,7 @@ class App extends React.Component<{}, {}> {
                 maxRowNo = range.maxRowNo;
             cellsCode[`${minColumnNo},${minRowNo},${maxColumnNo},${maxRowNo}`] = CellRange.create(minColumnNo,minRowNo,maxColumnNo,maxRowNo);
         })
-        console.log(cellsCode);
+       // console.log(cellsCode);
         return cellsCode;
     }
 
@@ -204,11 +231,10 @@ class App extends React.Component<{}, {}> {
      * @param columnNo
      * @returns {any}
      */
-    updateMergeRange(mergeRange, columnNo){
+    updateColumnMergeRange(mergeRange, columnNo){
         const temp = [];
         for(let key in mergeRange){
             let range = mergeRange[key];
-            // 列
             if(columnNo <= range.minColumnNo){
                 let minColumnNo = range.minColumnNo+1,
                     minRowNo = range.minRowNo,
@@ -228,6 +254,50 @@ class App extends React.Component<{}, {}> {
                     minRowNo = range.minRowNo,
                     maxColumnNo = range.maxColumnNo+1,
                     maxRowNo = range.maxRowNo;
+                const newKey = `${minColumnNo},${minRowNo},${maxColumnNo},${maxRowNo}`;
+                temp.push({
+                    key: key,
+                    range: {
+                        key: newKey,
+                        range: CellRange.create(minColumnNo,minRowNo,maxColumnNo,maxRowNo)
+                    }
+                });
+            }
+        }
+
+        temp.forEach((item,idx) => {
+            delete mergeRange[item.key];
+            const range = item.range;
+            mergeRange[range.key] = range.range;
+        })
+
+        return mergeRange;
+
+    }
+
+    updateRowMergeRange(mergeRange, rowNo){
+        const temp = [];
+        for(let key in mergeRange){
+            let range = mergeRange[key];
+            if(rowNo <= range.minRowNo){
+                let minColumnNo = range.minColumnNo,
+                    minRowNo = range.minRowNo+1,
+                    maxColumnNo = range.maxColumnNo,
+                    maxRowNo = range.maxRowNo+1;
+                const newKey = `${minColumnNo},${minRowNo},${maxColumnNo},${maxRowNo}`;
+                temp.push({
+                    key: key,
+                    range: {
+                        key: newKey,
+                        range: CellRange.create(minColumnNo,minRowNo,maxColumnNo,maxRowNo)
+                    }
+                });
+            }else if(rowNo > range.maxRowNo){
+            }else{
+                let minColumnNo = range.minColumnNo,
+                    minRowNo = range.minRowNo,
+                    maxColumnNo = range.maxColumnNo,
+                    maxRowNo = range.maxRowNo+1;
                 const newKey = `${minColumnNo},${minRowNo},${maxColumnNo},${maxRowNo}`;
                 temp.push({
                     key: key,
