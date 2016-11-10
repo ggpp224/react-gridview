@@ -22,16 +22,16 @@ let fieldData = {
 
     area: {
         header:{
-            minNo: 1,
-            maxNo:2
+            min: 1,
+            max: 2
         },
         body: {
-            minNo: 3,
-            maxNo: 6
+            min: 3,
+            max: 6
         },
         footer: {
-            minNo: 7,
-            maxNo: 7
+            min: 7,
+            max: 7
         }
     },
 
@@ -56,7 +56,7 @@ let fieldData = {
         ]
     },
     rows: {
-        num: 6,
+        num: 7,
         lines: [
             {
                 height: 50,
@@ -75,6 +75,9 @@ let fieldData = {
             },
             {
                 height: 100,
+            },
+            {
+                height: 50,
             }
         ]
     }
@@ -105,7 +108,17 @@ function createSheet(data){
         rowHeader: new RowHeader({
             rowCount: rowData.num
         })
-    }).mergeRange(CellRange.create(2, 2, 3, 2))
+    });
+
+    // 区域划分
+    const areaData = data.area;
+     sheet = sheet
+     .editCells(CellRange.create(1, areaData.header.min, columnData.num, areaData.header.max), (cell) => {return cell.setBackground('#aaa');})
+     //.editCells(CellRange.create(1, 1, 5, 2), (cell) => {return cell.setBackground('#aaa');})
+     .editCells(CellRange.create(1, areaData.footer.min, columnData.num, areaData.footer.max), (cell) => {return cell.setBackground('#d5d5d5');})
+
+    // 合并单元格
+    sheet = sheet.mergeRange(CellRange.create(2, 2, 3, 2))
       .mergeRange(CellRange.create(2, 3, 4, 3))
       .mergeRange(CellRange.create(1, 4, 3, 6))
       .mergeRange(CellRange.create(5, 3, 5, 6));
@@ -163,14 +176,8 @@ class App extends React.Component<{}, {}> {
         );
     }
 
-    /*onChangeOperation(ope, nextOpe){
-       //// console.log(ope)
-        return nextOpe;
-    }*/
 
     onChangeSheet(preSheet, sheet){
-        // console.log(sheet)
-        //console.log(sheet.columnHeader.items.toJS())
         this.setState({
             sheet: sheet,
             height: sheet.rowHeader.height+'px',
@@ -182,33 +189,55 @@ class App extends React.Component<{}, {}> {
     onInsertColumnClick(e){
         let sheet = this.refs.grid.state.sheet;
         let insertNo = 3;
+
         const newColumnHeader = sheet.columnHeader.insertItem(insertNo,new ColumnHeaderItem());
         let newSheet = sheet.setColumnHeader(newColumnHeader);
-
-        console.log(this.listMergeRange(newSheet));
         const mergeRange = this.updateColumnMergeRange(this.listMergeRange(newSheet), insertNo);
-        console.log(mergeRange);
         newSheet = newSheet.setTable(Map());
         for(let key in mergeRange){
             newSheet = newSheet.mergeRange(mergeRange[key]);
         }
-        console.log(newSheet);
+
+        // 更新区域
+        newSheet = this.updateArea(newSheet);
 
         this.onChangeSheet(sheet,newSheet);
     }
 
     onInsertRowClick(e){
         let sheet = this.refs.grid.state.sheet;
-        let insertNo = 5;
+        let insertNo = 2;
+        //更新区域数据
+        let areaData = fieldData.area;
+        if(insertNo <= areaData.header.min){
+            // 落入标题区
+            areaData.header.max += 1;
+            areaData.body.min += 1;
+            areaData.body.max += 1;
+            areaData.body.min += 1;
+            areaData.footer.min += 1;
+            areaData.footer.max += 1;
+        }else if(insertNo >= areaData.footer.min){
+            // 落入尾部区
+            areaData.footer.max += 1;
+        }else{
+            // 落入主体区
+            areaData.body.max += 1;
+            areaData.footer.min += 1;
+            areaData.footer.max += 1;
+        }
+
         const newRowHeader = sheet.rowHeader.insertItem(insertNo,new RowHeaderItem());
         let newSheet = sheet.setRowHeader(newRowHeader);
-        console.log(this.listMergeRange(newSheet));
         const mergeRange = this.updateRowMergeRange(this.listMergeRange(newSheet), insertNo);
-        console.log(mergeRange);
         newSheet = newSheet.setTable(Map());
         for(let key in mergeRange){
             newSheet = newSheet.mergeRange(mergeRange[key]);
         }
+
+        // 更新区域
+        newSheet = this.updateArea(newSheet);
+
         this.onChangeSheet(sheet,newSheet);
     }
 
@@ -224,6 +253,7 @@ class App extends React.Component<{}, {}> {
             //console.log(key);
             //console.log(item.get('mergeRange'));
             const range = item.get('mergeRange');
+            if(!range){return;}
             let minColumnNo = range.minColumnNo,
                 minRowNo = range.minRowNo,
                 maxColumnNo = range.maxColumnNo,
@@ -326,6 +356,15 @@ class App extends React.Component<{}, {}> {
 
         return mergeRange;
 
+    }
+
+    updateArea(sheet){
+        const columnCount = sheet.columnHeader.columnCount;
+        const areaData = fieldData.area;
+
+        sheet = sheet.editCells(CellRange.create(1, 1, columnCount, areaData.header.max), (cell) => {return cell.setBackground('#aaa');})
+                     .editCells(CellRange.create(1, areaData.footer.min, columnCount, areaData.footer.max), (cell) => {return cell.setBackground('#d5d5d5');})
+        return sheet;
     }
 
 
