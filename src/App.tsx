@@ -20,6 +20,21 @@ injectTapEventPlugin();
 
 let fieldData = {
 
+    area: {
+        header:{
+            minNo: 1,
+            maxNo:2
+        },
+        body: {
+            minNo: 3,
+            maxNo: 6
+        },
+        footer: {
+            minNo: 7,
+            maxNo: 7
+        }
+    },
+
     columns: {
         num: 5,
         fields: [
