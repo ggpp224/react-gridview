@@ -6,7 +6,7 @@ import {Sheet} from "../sheet";
 import {Operation} from "../operation";
 
 /**
- * セル選択モデル
+ * 单元选择模型
  */
 class CellRange extends Record({
     cellPoint1: null,

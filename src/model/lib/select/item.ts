@@ -4,7 +4,7 @@ import {Rect, Point, CellPoint} from "../../common";
 import {OBJECT_TYPE} from "../../sheet";
 import {Operation} from "../../operation";
 
-// セル位置モデル
+// 单元位置模型
 export class SelectInfo extends Record({
     objectType: null,
     cellPoint: null,

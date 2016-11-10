@@ -56,6 +56,9 @@ const drag = function(taget, dragStartFnc?, dragMoveFnc?, dragEndFnc?) {
         document.onselect = selectFnc;
         if (typeof dragEndFnc === "function") {
             // ドラッグ終了処理がfunctionの場合は実行する。
+            console.log('drag end...')
+
+            e.opeType = 'dragEnd';
             dragEndFnc(e);
         }
         if (document.removeEventListener) { // DOMレベル2イベントモデル

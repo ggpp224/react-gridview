@@ -410,7 +410,7 @@ export class Sheet extends Record({
         return this.setCell(cellPoint, nextCell);
     }
 
-    // 範囲内のセルを変更する
+    // 编辑范围内的单元格
     editCells(range: CellRange, mutator: (cell: Cell, cellPoint?: CellPoint) => Cell) {
         if (!range) {
             return this;

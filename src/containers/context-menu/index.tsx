@@ -5,7 +5,7 @@ import Operation from "../../model/operation";
 import Sheet from "../../model/sheet";
 import Extension from "../../model/extension";
 
-import "./css.js";
+// import "./css.js"
 
 export interface ContextMenuProps {
     sheet: Sheet;

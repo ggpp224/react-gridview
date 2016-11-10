@@ -190,9 +190,9 @@ function drawColumn(canvas: Canvas, sheet: Sheet,
 }
 
 
-// 行毎の描画
+// 绘制单元格边框
 export default function drawTable(canvas: Canvas, sheet: Sheet, opeModel: Operation) {
-
+//console.log('draw table')
     const freezePaneLeftWidth = sheet.getFreezePaneLeftWidth();
     const freezePaneTopHeight = sheet.getFreezePaneTopHeight();
     const topLeft = {
@@ -211,6 +211,7 @@ export default function drawTable(canvas: Canvas, sheet: Sheet, opeModel: Operat
         if (!item) {
             break;
         }
+        // 绘制行中的列
         drawColumn(canvas, sheet, i, item, topLeft,
             cellPoint.setRowNo(i),
             cellRect.setTop(top).setHeight(item.height));

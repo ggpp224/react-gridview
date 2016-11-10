@@ -131,11 +131,14 @@ export default class Inputer extends React.Component<InputerProps, InputerState>
         const ope = this.props.opeModel
             .setInput(input)
             .setCopyingRange(null);
+
+        console.log('input text change.')
         
         this.props.onStateChange(this.props.sheet, ope);
     }
 
     _onBlur = () => {
+        return;
         const input = this.props.opeModel.input.setIsInputing(false);
         const ope = this.props.opeModel.setInput(input);
         this.props.onStateChange(this.props.sheet, ope);

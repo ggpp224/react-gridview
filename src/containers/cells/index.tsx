@@ -22,7 +22,7 @@ const requestAnimationFrame =
     w.msRequestAnimationFrame;
 
 // スタイルシート読み込み
-import "./css.js";
+//import "./css.js";
 
 const style = {
     position: "absolute",
@@ -197,12 +197,12 @@ export default class Cells extends React.Component<CellsProps, CellsState> {
         if (!opeModel.canvasRect){
             return;
         }
-
-        this._tableRender(tableElement);
-        this._operationRender(opeElement);
-        this._headerRender(headerElement);
+       // console.log('Cells canvasRender !!!')
+        this._tableRender(tableElement); //绘制单元格边框线
+        this._operationRender(opeElement); // 绘制操作单元格
+        this._headerRender(headerElement); //绘制表头
         
-        const canvasContext:CanvasRenderingContext2D = canvasElement.getContext("2d");
+      const canvasContext:CanvasRenderingContext2D = canvasElement.getContext("2d");
         canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
         canvasContext.drawImage(tableElement, 0, 0);
         canvasContext.drawImage(opeElement, 0, 0);
@@ -227,6 +227,7 @@ export default class Cells extends React.Component<CellsProps, CellsState> {
     }
 
     componentDidMount() {
+        console.log('Cells didMount')
         window.addEventListener("resize", this._handleResize);
         this.rendering();
     }

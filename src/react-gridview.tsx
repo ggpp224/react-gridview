@@ -28,14 +28,14 @@ import {fitForTarget} from "./model/lib/fit-for-target";
 import {applyMixins} from "./util/apply-mixins";
 
 
-// スタイルシート読み込み
-import "./css.js";
+// 样式表读取
+// import "./css.js"
 
 
 /**
- * ドラッグ時にスクロールする処理
- * @param  {Sheet} sheet 表示情報
- * @param  {Operation} opeModel  操作情報
+ * 拖拽的处理
+ * @param  {Sheet} sheet 显示信息
+ * @param  {Operation} opeModel  操作信息
  * @return {CellPoint}           スクロール場所
  */
 function dragScroll(sheet, opeModel) {
@@ -58,11 +58,13 @@ export interface IGridViewProps {
     className?: string;
     key?: any;
     ref?: any;
+    style?: any;
     sheet?: Sheet;
     operation?: Operation;
     extension?: Extension;
     onChangeSheet?: (prevSheet: Sheet, nextSheet: Sheet) => Sheet;
     onChangeOperation?: (prevOpe: Operation, nextOpe: Operation) => Operation;
+    onDragEnd?: (prevOpe: Operation, nextOpe: Operation) => Operation;
 }
 
 export interface IGridViewState {
@@ -77,7 +79,8 @@ export class GridView extends React.Component<IGridViewProps, IGridViewState> im
         operation: new Operation(),
         extension: new Extension(),
         onChangeSheet: (prevView, nextView) => { return nextView; },
-        onChangeOperation: (prevVOperation, nextOperation) => { return nextOperation; }
+        onChangeOperation: (prevVOperation, nextOperation) => { return nextOperation; },
+        onDragEnd: (prevVOperation, nextOperation) => { return nextOperation; }
     }
 
     constructor(props: IGridViewProps, context) {
@@ -119,6 +122,7 @@ export class GridView extends React.Component<IGridViewProps, IGridViewState> im
     * @param  {Object} e イベント引数
     */
     _onMouseWheel = (e) => {
+        return;
         const opeModel = this.state.operation;
         let value = opeModel.scroll.rowNo + Math.round(e.deltaY / 100) * 3;
 
@@ -139,7 +143,7 @@ export class GridView extends React.Component<IGridViewProps, IGridViewState> im
     /**
      * マウスアップ処理
      */
-    _onMouseUp = () => {
+    _onMouseUp = (e) => {
         const opeModel = this.state.operation;
         const sheet = this.state.sheet;
         const nextSheet = operationResult(sheet, opeModel);
@@ -148,7 +152,8 @@ export class GridView extends React.Component<IGridViewProps, IGridViewState> im
             this._onViewModelChange(nextSheet);
         }
         const ope = opeModel.setOpeItem(null);
-        this._onOperationChange(ope);
+        const type = e.opeType==='dragEnd'?'dragEnd':'up';
+        this._onOperationChange(ope, type);
     }
     /**
      * マウスダウン処理
@@ -188,6 +193,7 @@ export class GridView extends React.Component<IGridViewProps, IGridViewState> im
     }
 
     _onMouseMove = (e) => {
+       // console.log('mouse move')
         const node = ReactDOM.findDOMNode(this.refs["gwcells"]);
         const sheet = this.state.sheet;
         const opeModel = this.state.operation;
@@ -303,6 +309,7 @@ export class GridView extends React.Component<IGridViewProps, IGridViewState> im
         this._onViewModelChange(sheet);
     }
     _onViewModelChange = (sheet) => {
+        console.log('onSheetChange')
         const prevSheet = this.state.sheet;
         const nextSheet = this.props.onChangeSheet(prevSheet, sheet);
         if (prevSheet === nextSheet) {
@@ -313,11 +320,14 @@ export class GridView extends React.Component<IGridViewProps, IGridViewState> im
             return prevState;
         });
     }
-    _onOperationChange = (ope) => {
-        const nextOpe = this.props.onChangeOperation(this.state.operation, ope);
+    _onOperationChange = (ope, up?) => {
+        let nextOpe = this.props.onChangeOperation(this.state.operation, ope);
+        //console.log(ope)
         if (this.state.operation === nextOpe) {
             return;
         }
+
+
         this.setState((prevState, props) => {
             prevState.operation = nextOpe;
             return prevState;
@@ -342,21 +352,25 @@ export class GridView extends React.Component<IGridViewProps, IGridViewState> im
         if (this.props.className) {
             className = className + " " + this.props.className;
         }
+        let style = this.props.style;
 
         return (
             <div className={className} ref="gridview"
+                style={style}
                 onWheel={this._onMouseWheel} onContextMenu={this._onContextMenu}>
                 <div style={cellStyle} ref="gwcells"  onMouseMove={this._onMouseMove} onTouchStart={this._onTouchStart} onTouchMove={this._onTouchMove}>
-                    <Cells onOperationChange={this._onOperationChange}
-                        sheet={sheet} opeModel={operation}/>
-
+                    <Cells
+                        onOperationChange={this._onOperationChange}
+                        sheet={sheet}
+                        opeModel={operation}
+                    />
                     <ExNodes sheet={sheet} operation={operation} extension={this.props.extension} />
                     <Stickies sheet={sheet} operation={operation} extension={this.props.extension} />
                 </div>
 
                 <Inputer ref="inputer" opeModel={operation} sheet={sheet}
                     onValueChange={this._onValueChange} onStateChange={this._onStateChange}/>
-                <GridViewBar sheet={sheet} opeModel={operation} onOperationChange={this._onOperationChange}/>
+               {/* <GridViewBar sheet={sheet} opeModel={operation} onOperationChange={this._onOperationChange}/>*/}
             </div>
         );
     }

@@ -1,6 +1,6 @@
 import {Record} from "immutable";
 
-// 矩形モデル
+// 矩形模型
 export class Rect extends Record({
     left: 0,
     top: 0,

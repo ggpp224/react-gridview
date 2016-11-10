@@ -6,7 +6,7 @@ import {HEADER_SIZE} from "../common";
 const defCell = new RowHeaderItem();
 const emptyCell = defCell.setBackground("#DDD");
 
-const DEFAULT_ROW_COUNT = 1000;
+const DEFAULT_ROW_COUNT = 6;
 
 // JSONからテーブル情報を生成
 function JsonToCell(json) {
@@ -110,6 +110,29 @@ export class RowHeader extends Record({
 
     setEditItems(editItems: Map<number, RowHeaderItem>) {
         return <RowHeader>this.set("editItems", editItems);
+    }
+
+    insertItem(index, item){
+        let editItems = this.editItems;
+        let newEditItems = <Map<number, RowHeaderItem>>OrderedMap();
+        let itemsSize = this.rowCount;
+        if(index > itemsSize){
+            newEditItems = editItems.set(itemsSize+1, item.setValue(itemsSize+1));
+        }else{
+            editItems.forEach((ite, key) => {
+                if(key < index){
+                    newEditItems = newEditItems.set(key, ite);
+                }else if(key === index){
+                   // const value = ColumnHeader.getId(index);
+                    newEditItems = newEditItems.set(index, item.setValue(index));
+                    newEditItems = newEditItems.set(index+1, ite.setValue(index+1));
+                }else{
+                    newEditItems = newEditItems.set(key+1, ite.setValue(key+1));
+                }
+            });
+        }
+
+        return this.setRowCount(newEditItems.size).setEditItems(newEditItems);
     }
 
     setBackground(background) {

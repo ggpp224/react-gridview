@@ -10,9 +10,9 @@ const abc = ["A", "B", "C", "D", "E", "F",
 const defCell = new ColumnHeaderItem();
 const emptyCell = defCell.setBackground("#DDD");
 
-const HEADER_HEIGHT = HEADER_SIZE.HEIGHT;
+const HEADER_HEIGHT = HEADER_SIZE.HEIGHT; // 行高
 
-const DEFAULT_COLUMN_COUNT = 702;
+const DEFAULT_COLUMN_COUNT = 5; //列数
 
 
 // JSONからテーブル情報を生成
@@ -40,7 +40,7 @@ export class ColumnHeader extends Record({
     isVisible: true,
     editItems: Map()
 }) {
-    private _height: number;
+    _height: number;
     columnCount: number;
     background: any;
     color: any;
@@ -54,6 +54,7 @@ export class ColumnHeader extends Record({
 
     // JSONから本クラスを生成
     static fromJS(json) {
+        // console.log('column - from -js')
         const columnHeader = ColumnHeader.create();
 
         if (!json) {
@@ -77,6 +78,7 @@ export class ColumnHeader extends Record({
     }
 
     toMinJS() {
+        // console.log('to-min-js');
         const empty = ColumnHeader.create();
 
         const mapJS = (items) => {
@@ -118,6 +120,30 @@ export class ColumnHeader extends Record({
     setEditItems(editItems: Map<number, ColumnHeaderItem>) {
         return <ColumnHeader>this.set("editItems", editItems);
     }
+
+    insertItem(index, item){
+        let editItems = this.editItems;
+        let newEditItems = <Map<number, ColumnHeaderItem>>OrderedMap();
+        let itemsSize = this.columnCount;
+        if(index > itemsSize){
+            newEditItems = editItems.set(itemsSize+1, item.setValue(ColumnHeader.getId(itemsSize+1)));
+        }else{
+            editItems.forEach((ite, key) => {
+                if(key < index){
+                    newEditItems = newEditItems.set(key, ite);
+                }else if(key === index){
+                    const value = ColumnHeader.getId(index);
+                    newEditItems = newEditItems.set(index, item.setValue(value).setWidth(50));
+                    newEditItems = newEditItems.set(index+1, ite.setValue(ColumnHeader.getId(index+1)));
+                }else{
+                    newEditItems = newEditItems.set(key+1, ite.setValue(ColumnHeader.getId(key+1)));
+                }
+            });
+        }
+
+        return this.setColumnCount(newEditItems.size).setEditItems(newEditItems);
+    }
+
     setColor(color) {
         return <ColumnHeader>this.set("color", color);
     }
@@ -152,6 +178,7 @@ export class ColumnHeader extends Record({
     }
 
     get items() {
+        // console.log('column - get - header')
         if (this._items) {
             return this._items;
         }
@@ -160,11 +187,9 @@ export class ColumnHeader extends Record({
             for (let i = 0; i < this.columnCount; i++) {
                 const columnNo = i + 1;
                 const value = ColumnHeader.getId(columnNo);
-
                 const item = this.editItems.has(columnNo) ?
                     this.editItems.get(columnNo) :
                     emptyCell;
-
                 map.set(columnNo, item.setValue(value).setLeft(sumWidth));
                 sumWidth = sumWidth + item.width;
             }

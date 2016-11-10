@@ -6,8 +6,8 @@ import {CellRange} from "../common";
 import {SelectInfo} from "../lib/select";
 
 /**
- * 選択中オブジェクトに対するカーソルを取得する
- * @param {OBJECT_TYPE} objectType 各エリアの種類
+ * 选择对象的光标
+ * @param {OBJECT_TYPE} objectType 区域的种类
  * @return {string} カーソル名
  */
 function objectCursor(objectType: OBJECT_TYPE) {
@@ -28,7 +28,7 @@ function objectCursor(objectType: OBJECT_TYPE) {
 }
 
 /**
- * 操作状態クラス
+ * 操作状态类
  */
 export class Operation extends Record({
     input: new InputModel(),
@@ -44,19 +44,19 @@ export class Operation extends Record({
 
     /**入力エリア */
     input: InputModel;
-    /**選択エリア */
+    /** 选择信息 */
     selectItem: SelectInfo;
-    /**操作中オブジェクト情報 */
+    /**操作对象信息 */
     opeItem: SelectInfo;
     /**ホバー中オブジェクト情報 */
     hoverItem: SelectInfo;
-    /**現在選択中範囲 */
+    /**目前选择范围 */
     rangeItem: CellRange;
-    /**コピー中範囲 */
+    /**拷贝范围 */
     copyingRange: CellRange;
-    /**複数範囲選択していた場合の範囲リスト */
+    /**多范围选择的范围名单 */
     clipRanges: List<CellRange>;
-    /**描画エリアの大きさ */
+    /**绘图区域的大小 */
     canvasRect: Rect;
     /**スクロールポイント */
     scroll: CellPoint;

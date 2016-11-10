@@ -12,7 +12,7 @@ import Sheet  from "../../../model/sheet";
 import {drag} from "../../../util/drag";
 
 // スタイルシート読み込み
-import "./css.js";
+// import "./css.js"
 
 
 const PADDING = 0;

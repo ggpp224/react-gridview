@@ -7,7 +7,7 @@ import {Horizontalbar} from "./horizontalbar";
 import {Verticalbar}  from "./verticalbar";
 
 // スタイルシート読み込み
-import "./css.js";
+// import "./css.js"
 
 const cStyle = Object.freeze({
     width: "20px",

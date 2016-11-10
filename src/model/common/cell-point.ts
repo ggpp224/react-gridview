@@ -4,17 +4,16 @@ const abc = ["A", "B", "C", "D", "E", "F",
     "G", "H", "I", "J", "K", "L", "M", "N", "O",
     "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 
-// セル位置モデル
+// 单元位置模型
 export class CellPoint extends Record({
-    columnNo: 0,
-    rowNo: 0
+    columnNo: 0, //列号
+    rowNo: 0 //行号
 }) {
     columnNo: number;
     rowNo: number;
     
     private _id:string = null;
 
-    // コンストラクタ
     constructor(columnNo:number, rowNo:number) {
         super({
             columnNo: Number(columnNo)|0,
