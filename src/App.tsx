@@ -260,7 +260,40 @@ class App extends React.Component<{}, {}> {
     }
 
     onDeleteRowClick(){
+        let sheet = this.refs.grid.state.sheet;
+        let delNo = 2;
+        //更新区域数据
+        let areaData = fieldData.area;
+        if(delNo <= areaData.header.min){
+            // 落入标题区
+            areaData.header.max -= 1;
+            areaData.body.min -= 1;
+            areaData.body.max -= 1;
+            areaData.body.min -= 1;
+            areaData.footer.min -= 1;
+            areaData.footer.max -= 1;
+        }else if(delNo >= areaData.footer.min){
+            // 落入尾部区
+            areaData.footer.max -= 1;
+        }else{
+            // 落入主体区
+            areaData.body.max -= 1;
+            areaData.footer.min -= 1;
+            areaData.footer.max -= 1;
+        }
 
+        const newRowHeader = sheet.rowHeader.deleteItem(delNo);
+        let newSheet = sheet.setRowHeader(newRowHeader);
+        const mergeRange = this.updateDeleteRowMergeRange(this.listMergeRange(newSheet), delNo);
+        newSheet = newSheet.setTable(Map());
+        for(let key in mergeRange){
+            newSheet = newSheet.mergeRange(mergeRange[key]);
+        }
+
+        // 更新区域
+        newSheet = this.updateArea(newSheet);
+
+        this.onChangeSheet(sheet,newSheet);
     }
 
     /**
@@ -403,6 +436,50 @@ class App extends React.Component<{}, {}> {
                     minRowNo = range.minRowNo,
                     maxColumnNo = range.maxColumnNo,
                     maxRowNo = range.maxRowNo+1;
+                const newKey = `${minColumnNo},${minRowNo},${maxColumnNo},${maxRowNo}`;
+                temp.push({
+                    key: key,
+                    range: {
+                        key: newKey,
+                        range: CellRange.create(minColumnNo,minRowNo,maxColumnNo,maxRowNo)
+                    }
+                });
+            }
+        }
+
+        temp.forEach((item,idx) => {
+            delete mergeRange[item.key];
+            const range = item.range;
+            mergeRange[range.key] = range.range;
+        })
+
+        return mergeRange;
+
+    }
+
+    updateDeleteRowMergeRange(mergeRange, rowNo){
+        const temp = [];
+        for(let key in mergeRange){
+            let range = mergeRange[key];
+            if(rowNo <= range.minRowNo){
+                let minColumnNo = range.minColumnNo,
+                    minRowNo = range.minRowNo-1,
+                    maxColumnNo = range.maxColumnNo,
+                    maxRowNo = range.maxRowNo-1;
+                const newKey = `${minColumnNo},${minRowNo},${maxColumnNo},${maxRowNo}`;
+                temp.push({
+                    key: key,
+                    range: {
+                        key: newKey,
+                        range: CellRange.create(minColumnNo,minRowNo,maxColumnNo,maxRowNo)
+                    }
+                });
+            }else if(rowNo > range.maxRowNo){
+            }else{
+                let minColumnNo = range.minColumnNo,
+                    minRowNo = range.minRowNo,
+                    maxColumnNo = range.maxColumnNo,
+                    maxRowNo = range.maxRowNo-1;
                 const newKey = `${minColumnNo},${minRowNo},${maxColumnNo},${maxRowNo}`;
                 temp.push({
                     key: key,
