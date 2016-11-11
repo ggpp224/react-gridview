@@ -171,6 +171,8 @@ class App extends React.Component<{}, {}> {
                     />
                     <input value="插入列" type="button" onClick={this.onInsertColumnClick.bind(this)}/>
                     <input value="插入行" type="button" onClick={this.onInsertRowClick.bind(this)}/>
+                    <input value="删除列" type="button" onClick={this.onDeleteColumnClick.bind(this)}/>
+                    <input value="删除行" type="button" onClick={this.onDeleteRowClick.bind(this)}/>
                 </div>
             </MuiThemeProvider>
         );
@@ -192,7 +194,7 @@ class App extends React.Component<{}, {}> {
 
         const newColumnHeader = sheet.columnHeader.insertItem(insertNo,new ColumnHeaderItem());
         let newSheet = sheet.setColumnHeader(newColumnHeader);
-        const mergeRange = this.updateColumnMergeRange(this.listMergeRange(newSheet), insertNo);
+        const mergeRange = this.updateInsertColumnMergeRange(this.listMergeRange(newSheet), insertNo);
         newSheet = newSheet.setTable(Map());
         for(let key in mergeRange){
             newSheet = newSheet.mergeRange(mergeRange[key]);
@@ -229,7 +231,7 @@ class App extends React.Component<{}, {}> {
 
         const newRowHeader = sheet.rowHeader.insertItem(insertNo,new RowHeaderItem());
         let newSheet = sheet.setRowHeader(newRowHeader);
-        const mergeRange = this.updateRowMergeRange(this.listMergeRange(newSheet), insertNo);
+        const mergeRange = this.updateInsertRowMergeRange(this.listMergeRange(newSheet), insertNo);
         newSheet = newSheet.setTable(Map());
         for(let key in mergeRange){
             newSheet = newSheet.mergeRange(mergeRange[key]);
@@ -239,6 +241,26 @@ class App extends React.Component<{}, {}> {
         newSheet = this.updateArea(newSheet);
 
         this.onChangeSheet(sheet,newSheet);
+    }
+
+    onDeleteColumnClick(){
+        let sheet = this.refs.grid.state.sheet;
+        const delNo = 2;
+        const newColumnHeader = sheet.columnHeader.deleteItem(delNo);
+        let newSheet = sheet.setColumnHeader(newColumnHeader);
+
+        const mergeRange = this.updateDeleteColumnMergeRange(this.listMergeRange(newSheet), delNo);
+        newSheet = newSheet.setTable(Map());
+        for(let key in mergeRange){
+            newSheet = newSheet.mergeRange(mergeRange[key]);
+        }
+        // 更新区域
+        newSheet = this.updateArea(newSheet);
+        this.onChangeSheet(sheet,newSheet);
+    }
+
+    onDeleteRowClick(){
+
     }
 
     /**
@@ -270,7 +292,7 @@ class App extends React.Component<{}, {}> {
      * @param columnNo
      * @returns {any}
      */
-    updateColumnMergeRange(mergeRange, columnNo){
+    updateInsertColumnMergeRange(mergeRange, columnNo){
         const temp = [];
         for(let key in mergeRange){
             let range = mergeRange[key];
@@ -314,7 +336,51 @@ class App extends React.Component<{}, {}> {
 
     }
 
-    updateRowMergeRange(mergeRange, rowNo){
+    updateDeleteColumnMergeRange(mergeRange, columnNo){
+        const temp = [];
+        for(let key in mergeRange){
+            let range = mergeRange[key];
+            if(columnNo <= range.minColumnNo){
+                let minColumnNo = range.minColumnNo-1,
+                    minRowNo = range.minRowNo,
+                    maxColumnNo = range.maxColumnNo-1,
+                    maxRowNo = range.maxRowNo;
+                const newKey = `${minColumnNo},${minRowNo},${maxColumnNo},${maxRowNo}`;
+                temp.push({
+                    key: key,
+                    range: {
+                        key: newKey,
+                        range: CellRange.create(minColumnNo,minRowNo,maxColumnNo,maxRowNo)
+                    }
+                });
+            }else if(columnNo > range.maxColumnNo){
+            }else{
+                let minColumnNo = range.minColumnNo,
+                    minRowNo = range.minRowNo,
+                    maxColumnNo = range.maxColumnNo-1,
+                    maxRowNo = range.maxRowNo;
+                const newKey = `${minColumnNo},${minRowNo},${maxColumnNo},${maxRowNo}`;
+                temp.push({
+                    key: key,
+                    range: {
+                        key: newKey,
+                        range: CellRange.create(minColumnNo,minRowNo,maxColumnNo,maxRowNo)
+                    }
+                });
+            }
+        }
+
+        temp.forEach((item,idx) => {
+            delete mergeRange[item.key];
+            const range = item.range;
+            mergeRange[range.key] = range.range;
+        })
+
+        return mergeRange;
+
+    }
+
+    updateInsertRowMergeRange(mergeRange, rowNo){
         const temp = [];
         for(let key in mergeRange){
             let range = mergeRange[key];
