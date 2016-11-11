@@ -144,6 +144,29 @@ export class ColumnHeader extends Record({
         return this.setColumnCount(newEditItems.size).setEditItems(newEditItems);
     }
 
+    deleteItem(index){
+        /*let editItems = this.editItems;
+        let newEditItems = <Map<number, ColumnHeaderItem>>OrderedMap();
+        let itemsSize = this.columnCount;
+        if(index > itemsSize){
+            newEditItems = editItems.set(itemsSize+1, item.setValue(ColumnHeader.getId(itemsSize+1)));
+        }else{
+            editItems.forEach((ite, key) => {
+                if(key < index){
+                    newEditItems = newEditItems.set(key, ite);
+                }else if(key === index){
+                    const value = ColumnHeader.getId(index);
+                    newEditItems = newEditItems.set(index, item.setValue(value).setWidth(50));
+                    newEditItems = newEditItems.set(index+1, ite.setValue(ColumnHeader.getId(index+1)));
+                }else{
+                    newEditItems = newEditItems.set(key+1, ite.setValue(ColumnHeader.getId(key+1)));
+                }
+            });
+        }
+
+        return this.setColumnCount(newEditItems.size).setEditItems(newEditItems);*/
+    }
+
     setColor(color) {
         return <ColumnHeader>this.set("color", color);
     }

@@ -180,7 +180,7 @@ class App extends React.Component<{}, {}> {
     onChangeSheet(preSheet, sheet){
         this.setState({
             sheet: sheet,
-            height: sheet.rowHeader.height+'px',
+            height: (sheet.rowHeader.height+18)+'px',
             width: sheet.columnHeader.width+'px'
         })
         return sheet;
